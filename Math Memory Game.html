@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Memory - Menu Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-overlay: rgba(240, 248, 255, 0.93); /* Alice Blue Translucent */
+            --primary-pink: #4cc9f0; /* Cool Cyan Blue */
+            --primary-blue: #4895ef; /* Cool Royal Blue */
+            --accent-yellow: #ffe66d; /* Bright Yellow */
+            --text-color: #2b3a42; /* Cool Slate Dark */
+            --success-green: #4ade80; /* Vibrant Green */
+            --mixed-purple: #7209b7; /* Deep Magic Purple */
+            --danger-red: #ff4d6d; /* Coral Red */
+            --glow-blue: rgba(76, 201, 240, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        body {
+            /* Latar belakang abstrak warna-warni keren */
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/007/685/830/small_2x/colorful-geometric-background-trendy-gradient-shapes-composition-cool-background-design-for-posters-free-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: -1;
+        }
+
+        /* --- UI MENU UTAMA --- */
+        #mainMenu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            width: 100%;
+            background: var(--bg-overlay);
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 0 20px var(--glow-blue);
+            max-width: 600px;
+            margin-top: 20px;
+            border: 6px double var(--primary-blue); /* Garis ganda keren */
+        }
+
+        .menu-title {
+            font-size: 3rem;
+            color: var(--primary-blue);
+            text-shadow: 3px 3px 0px white, 0 0 10px var(--glow-blue);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .welcome-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        /* Styling Gambar Kucing Keren */
+        .cute-cat-img {
+            width: 140px;
+            height: 140px;
+            margin: 5px 0;
+            object-fit: contain;
+            filter: drop-shadow(0 5px 12px var(--glow-blue));
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .welcome-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 3px dashed var(--primary-pink); /* Garis putus-putus keren */
+            max-width: 320px;
+            line-height: 1.4;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .menu-item-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .menu-btn {
+            background: white;
+            border: 4px solid var(--primary-pink);
+            padding: 20px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 0px var(--primary-pink), 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .btn-rank-small {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent-yellow);
+            border: 2px solid white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .btn-rank-small:hover { transform: scale(1.2) rotate(15deg); }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0px var(--primary-pink), 0 5px 15px var(--glow-blue);
+        }
+
+        .menu-btn i { font-size: 1.8rem; display: block; margin-bottom: 5px; }
+        .menu-btn span { font-weight: 700; font-size: 1rem; color: var(--primary-blue); }
+
+        /* --- UI GAME AREA --- */
+        #gameArea {
+            display: none;
+            width: 100%;
+            max-width: 850px;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-overlay);
+            padding: 20px;
+            border-radius: 40px;
+            border: 6px double var(--primary-blue); /* Pembatas luar ganda */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 0 25px var(--glow-blue);
+            margin-top: 10px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--primary-blue);
+            text-shadow: 2px 2px 0px white, 0 0 8px var(--glow-blue);
+            margin-bottom: 8px;
+        }
+
+        .mascot-box {
+            display: flex;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            border: 3px dashed var(--primary-pink); /* Garis putus-putus pembatas */
+            align-items: center;
+            width: 90%;
+            min-height: 90px;
+            position: relative;
+        }
+
+        /* Styling Gambar Kucing Keren di Area Game */
+        .cat-avatar-img {
+            width: 65px;
+            height: 65px;
+            margin-right: 15px;
+            object-fit: contain;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 2px 6px var(--glow-blue));
+        }
+
+        .speech { font-size: 0.95rem; font-weight: 600; color: var(--primary-blue); flex: 1; }
+
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-pill {
+            background: white;
+            padding: 6px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 0px #e0e0e0;
+            font-weight: 700;
+            border: 2px solid #e0e0e0;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-pill.lives {
+            border-color: var(--danger-red);
+            color: var(--danger-red);
+            box-shadow: 0 4px 0px #ffcccc;
+        }
+
+        .stat-pill.level {
+            border-color: var(--primary-pink);
+            color: var(--primary-blue);
+            box-shadow: 0 4px 0px #e0f2fe;
+        }
+
+        .main-game {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 0;
+            width: 100%;
+            position: relative;
+        }
+
+        .grid-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        /* PEMBATAS KIRI-KANAN KEREN */
+        .cute-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            position: relative;
+        }
+
+        .divider-line {
+            width: 4px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--primary-blue) 0,
+                var(--primary-blue) 12px,
+                transparent 12px,
+                transparent 24px
+            );
+            border-radius: 2px;
+        }
+
+        .divider-icon {
+            position: absolute;
+            background: white;
+            padding: 6px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-blue);
+            font-size: 1.2rem;
+            z-index: 1;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .section-tag {
+            background: white;
+            padding: 4px 15px;
+            border-radius: 12px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            border: 3px double var(--primary-pink); /* Garis tepi ganda mini */
+            font-size: 0.85rem;
+        }
+
+        .grid-3x3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+            border-radius: 12px;
+        }
+
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-back {
+            background-color: #e0f2fe; /* Light Blue Back */
+            background-image: radial-gradient(#bae6fd 20%, transparent 20%);
+            background-size: 8px 8px;
+        }
+        .card-back::after { content: '🐾'; font-size: 1.2rem; opacity: 0.7; color: var(--primary-blue); }
+
+        .card-front { transform: rotateY(180deg); background: white; }
+        .q-card .card-front { color: var(--primary-blue); border-color: var(--primary-pink); }
+        .a-card .card-front { color: #0284c7; border-color: var(--primary-blue); }
+
+        .card.matched .card-inner { transform: rotateY(180deg); }
+        .card.matched .card-front {
+            background-color: #f0fff4 !important;
+            border-color: var(--success-green) !important;
+            color: var(--success-green) !important;
+            opacity: 0.75;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+        }
+
+        /* AMAZING TEXT EFFECT */
+        #amazingText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent-yellow);
+            text-shadow: 4px 4px 0px var(--primary-blue), -2px -2px 0px white;
+            z-index: 100;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #amazingText.show { transform: translate(-50%, -50%) scale(1.2); }
+
+        .btn-action {
+            margin-top: 20px;
+            background: var(--primary-blue);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #0284c7, 0 4px 10px var(--glow-blue);
+            margin-right: 8px;
+            transition: transform 0.1s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-action.secondary { background: #90a4ae; box-shadow: 0 5px 0px #546e7a; }
+
+        .leaderboard-container {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+
+        .leaderboard-container::-webkit-scrollbar { width: 6px; }
+        .leaderboard-container::-webkit-scrollbar-thumb { background: var(--primary-pink); border-radius: 10px; }
+
+        .leaderboard-group { margin-bottom: 20px; text-align: left; }
+        .leaderboard-group-title { font-size: 0.9rem; background: #e0f2fe; padding: 4px 12px; border-radius: 10px; color: var(--primary-blue); font-weight: 700; margin-bottom: 8px; display: inline-block; }
+        .leaderboard-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 12px; font-size: 0.85rem; border: 1px solid #e0f2fe; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .rank-medal { font-size: 1.1rem; margin-right: 5px; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85); z-index: 1000;
+            justify-content: center; align-items: center; backdrop-filter: blur(6px);
+        }
+
+        .modal-box {
+            background: white; padding: 25px; border-radius: 35px; text-align: center;
+            border: 6px double var(--primary-blue); /* Garis ganda di modal */
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15), 0 0 20px var(--glow-blue);
+            width: 90%; max-width: 450px; position: relative;
+        }
+
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #ccc; }
+        .close-modal:hover { color: var(--primary-blue); }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .shake-it { animation: shake 0.3s; }
+
+        @media (max-width: 600px) {
+            .cute-divider { display: none; }
+            .main-game { flex-direction: column; gap: 20px; }
+            .grid-section { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MENU UTAMA -->
+    <div id="mainMenu">
+        <h1 class="menu-title">🐾 Math Memory</h1>
+        
+        <div class="welcome-box">
+            <!-- Gambar Kucing Keren memakai kaos dan kacamata -->
+            <img class="cute-cat-img" src="https://png.pngtree.com/png-vector/20230306/ourmid/pngtree-cute-cat-vector-wearing-t-shirt-and-glasses-png-image_6628682.png" alt="Cool Cat wearing Sunglasses and T-Shirt">
+            <div class="welcome-text">
+                Kamu punya 15 nyawa! Ayo kumpulkan babak sebanyak mungkin! ❤️
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item-wrapper"><div class="btn-rank-small" onclick="openLeaderboard('plus')">🏆</div><div class="menu-btn" onclick="startGame('plus')"><i>➕</i><span>Tambah</span></div></div>
+            <div class="menu-item-wrapper"><div class="btn-rank-small" onclick="openLeaderboard('minus')">🏆</div><div class="menu-btn" onclick="startGame('minus')"><i>➖</i><span>Kurang</span></div></div>
+            <div class="menu-item-wrapper"><div class="btn-rank-small" onclick="openLeaderboard('multiply')">🏆</div><div class="menu-btn" onclick="startGame('multiply')"><i>✖️</i><span>Kali</span></div></div>
+            <div class="menu-item-wrapper"><div class="btn-rank-small" onclick="openLeaderboard('divide')">🏆</div><div class="menu-btn" onclick="startGame('divide')"><i>➗</i><span>Bagi</span></div></div>
+            <div class="menu-item-wrapper" style="grid-column: span 2;"><div class="btn-rank-small" onclick="openLeaderboard('mixed')">🏆</div><div class="menu-btn mixed" onclick="startGame('mixed')"><i>🌀</i><span>Campuran!</span></div></div>
+        </div>
+    </div>
+
+    <!-- AREA PERMAINAN -->
+    <div id="gameArea">
+        <div id="amazingText">AMAZING! ✨</div>
+        <div class="header"><h1 id="gameTitle">🐾 Paw Game</h1></div>
+
+        <div class="mascot-box">
+            <!-- Avatar Kucing Keren di Game Area -->
+            <img class="cat-avatar-img" id="catAvatar" src="https://png.pngtree.com/png-vector/20230306/ourmid/pngtree-cute-cat-vector-wearing-t-shirt-and-glasses-png-image_6628682.png" alt="Cool Cat Avatar">
+            <div class="speech" id="chat">"Meow! Ayo tebak semuanya!"</div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-pill lives">❤️ <span id="lives">15</span></div>
+            <div class="stat-pill level">🏅 Babak: <span id="level">1</span></div>
+            <div class="stat-pill">🕒 <span id="timer">0</span>s</div>
+            <div class="stat-pill">⭐ <span id="score">0</span></div>
+        </div>
+
+        <div class="main-game">
+            <!-- SEKSI SOAL -->
+            <div class="grid-section">
+                <div class="section-tag" style="color: var(--primary-blue);">🌸 SOAL</div>
+                <div class="grid-3x3" id="qGrid"></div>
+            </div>
+            
+            <!-- CUTE DIVIDER -->
+            <div class="cute-divider">
+                <div class="divider-line"></div>
+                <div class="divider-icon">🐾</div>
+            </div>
+            
+            <!-- SEKSI JAWABAN -->
+            <div class="grid-section">
+                <div class="section-tag" style="color: #0284c7;">🎀 JAWABAN</div>
+                <div class="grid-3x3" id="aGrid"></div>
+            </div>
+        </div>
+
+        <div style="display: flex;"><button class="btn-action secondary" onclick="backToMenu()">Menu 🐾</button></div>
+    </div>
+
+    <div class="modal-overlay" id="leaderboardModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeLeaderboard()">&times;</span>
+            <div id="modalResultEmoji" style="font-size: 3.5rem; margin-bottom: 5px;">🏆</div>
+            <h2 id="modalLeaderboardTitle" style="color: var(--primary-blue); margin-bottom: 5px;">Peringkat Terbaik</h2>
+            <p id="modalScoreText" style="font-weight: 600; margin-bottom: 15px; color: #777;"></p>
+            <div class="leaderboard-container" id="leaderboardContent"></div>
+            <button class="btn-action" style="width: 100%; margin-top: 20px;" onclick="closeLeaderboard()">Tutup 🐾</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'plus';
+        let flippedQ = null, flippedA = null, matched = 0, time = 0, points = 0, lives = 15, currentLevel = 1, timer = null, busy = false, isGameOver = false;
+
+        const modeNames = { 'plus': 'Tambah ➕', 'minus': 'Kurang ➖', 'multiply': 'Kali ✖️', 'divide': 'Bagi ➗', 'mixed': 'Campur 🌀' };
+
+        // SOUND ENGINE
+        const audio = new (window.AudioContext || window.webkitAudioContext)();
+        function beep(freq, type = 'short') {
+            const osc = audio.createOscillator();
+            const gain = audio.createGain();
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.05, audio.currentTime);
+            const duration = type === 'long' ? 0.4 : 0.15;
+            gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+            osc.connect(gain); gain.connect(audio.destination);
+            osc.start(); osc.stop(audio.currentTime + duration);
+        }
+
+        // AMAZING SOUND (SPEECH)
+        function speakAmazing() {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = "Amazing!";
+                msg.lang = 'en-US';
+                msg.pitch = 1.5;
+                msg.rate = 1.2;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // WRONG SOUND (SPEECH)
+        function speakWrong() {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = "You Wrong!";
+                msg.lang = 'en-US';
+                msg.pitch = 0.8;
+                msg.rate = 1.1;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function showAmazingText() {
+            const text = document.getElementById('amazingText');
+            text.classList.add('show');
+            setTimeout(() => text.classList.remove('show'), 800);
+        }
+
+        function saveScore(mode, totalScore) {
+            let scores = JSON.parse(localStorage.getItem('mathMemoryScores') || '{}');
+            if (!scores[mode]) scores[mode] = [];
+            scores[mode].push({ score: totalScore, date: new Date().toLocaleDateString() });
+            scores[mode].sort((a, b) => b.score - a.score);
+            scores[mode] = scores[mode].slice(0, 5);
+            localStorage.setItem('mathMemoryScores', JSON.stringify(scores));
+        }
+
+        // Fungsi Animasi Reaktif untuk Kucing Keren
+        function updateMascot(state) {
+            const avatar = document.getElementById('catAvatar'), chat = document.getElementById('chat');
+            avatar.style.transform = "scale(1) rotate(0deg)"; // Reset posisi
+
+            if (state === 'happy') { 
+                avatar.style.transform = "scale(1.25) rotate(15deg)"; 
+                chat.innerText = "Yey! Amazing! Meow!"; 
+            }
+            else if (state === 'sad') { 
+                avatar.style.transform = "scale(0.8) rotate(-15deg) translateY(10px)"; 
+                chat.style.color = "var(--danger-red)";
+                chat.innerText = "Huhu... coba lagi ya!"; 
+            }
+            else if (state === 'wrong') { 
+                avatar.style.transform = "scale(1.1) translateY(-12px)"; 
+                chat.style.color = "var(--danger-red)";
+                chat.innerText = "Aduh! Salah!"; 
+                setTimeout(() => { 
+                    if(!isGameOver) {
+                        avatar.style.transform = "scale(1) rotate(0deg)"; 
+                        chat.style.color = "var(--primary-blue)";
+                    }
+                }, 800); 
+            }
+            else { 
+                avatar.style.transform = "scale(1) rotate(0deg)"; 
+                chat.style.color = "var(--primary-blue)";
+            }
+        }
+
+        function startGame(mode) {
+            currentMode = mode;
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = "🐾 " + modeNames[mode];
+            points = 0; lives = 15; currentLevel = 1; time = 0; isGameOver = false;
+            init();
+        }
+
+        function backToMenu() {
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('gameArea').style.display = 'none';
+            clearInterval(timer);
+        }
+
+        function createPairs() {
+            let data = [];
+            let usedAnswers = new Set();
+            const modes = ['plus', 'minus', 'multiply', 'divide'];
+            
+            for(let i=0; i<9; i++) {
+                let n1, n2, q, a, modeToUse;
+                let attempts = 0;
+                
+                do {
+                    modeToUse = currentMode === 'mixed' ? modes[Math.floor(Math.random() * modes.length)] : currentMode;
+                    
+                    if(modeToUse === 'plus') { 
+                        n1 = Math.floor(Math.random() * (10 + currentLevel)) + 1; 
+                        n2 = Math.floor(Math.random() * (10 + currentLevel)) + 1; 
+                        a = n1 + n2;
+                        q = `${n1}+${n2}`; 
+                    }
+                    else if(modeToUse === 'minus') { 
+                        n1 = Math.floor(Math.random() * (15 + currentLevel)) + 10; 
+                        n2 = Math.floor(Math.random() * (n1 - 1)) + 1; 
+                        a = n1 - n2;
+                        q = `${n1}-${n2}`; 
+                    }
+                    else if(modeToUse === 'multiply') { 
+                        n1 = Math.floor(Math.random() * 9) + 1; 
+                        n2 = Math.floor(Math.random() * 9) + 1; 
+                        a = n1 * n2;
+                        q = `${n1}x${n2}`; 
+                    }
+                    else if(modeToUse === 'divide') { 
+                        a = Math.floor(Math.random() * (9 + currentLevel)) + 1; 
+                        n2 = Math.floor(Math.random() * 9) + 1; 
+                        n1 = a * n2; 
+                        q = `${n1}:${n2}`; 
+                    }
+                    
+                    attempts++;
+                    if (attempts > 50) break; 
+                    
+                } while (usedAnswers.has(a));
+
+                usedAnswers.add(a);
+                data.push({ id: i, q: q, a: String(a) });
+            }
+            return data;
+        }
+
+        function handleFlip(card, type) {
+            if(busy || isGameOver || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if(!timer) timer = setInterval(() => { time++; document.getElementById('timer').innerText = time; }, 1000);
+
+            beep(type === 'q' ? 440 : 554); // Suara klik
+            card.classList.add('flipped');
+
+            if(type === 'q') { if(flippedQ) flippedQ.classList.remove('flipped'); flippedQ = card; }
+            else { if(flippedA) flippedA.classList.remove('flipped'); flippedA = card; }
+
+            if(flippedQ && flippedA) {
+                busy = true;
+                if(flippedQ.dataset.id === flippedA.dataset.id) {
+                    setTimeout(() => {
+                        beep(880); // Suara benar
+                        speakAmazing(); // Mengucapkan "Amazing"
+                        showAmazingText(); // Efek teks pop-up
+                        flippedQ.classList.add('matched'); flippedA.classList.add('matched');
+                        points += (100 * currentLevel);
+                        document.getElementById('score').innerText = points;
+                        matched++; flippedQ = null; flippedA = null; busy = false;
+                        if(matched === 9) nextLevel();
+                    }, 400);
+                } else {
+                    setTimeout(() => {
+                        flippedQ.classList.remove('flipped'); flippedA.classList.remove('flipped');
+                        flippedQ = null; flippedA = null; busy = false;
+                        lives--;
+                        const livesEl = document.getElementById('lives');
+                        livesEl.innerText = lives;
+                        livesEl.parentElement.classList.add('shake-it');
+                        setTimeout(() => livesEl.parentElement.classList.remove('shake-it'), 300);
+                        updateMascot('wrong');
+                        beep(150, 'long'); // Beep berat
+                        speakWrong(); // Mengucapkan "You Wrong"
+                        if(lives <= 0) gameOver();
+                    }, 700);
+                }
+            }
+        }
+
+        function nextLevel() {
+            updateMascot('happy');
+            setTimeout(() => { currentLevel++; init(); }, 1200);
+        }
+
+        function gameOver() {
+            isGameOver = true; clearInterval(timer);
+            saveScore(currentMode, points);
+            updateMascot('sad');
+            openLeaderboard(currentMode, 'lose');
+        }
+
+        function openLeaderboard(mode, resultType = 'none') {
+            const modal = document.getElementById('leaderboardModal'), content = document.getElementById('leaderboardContent');
+            const scoreText = document.getElementById('modalScoreText');
+            content.innerHTML = ""; modal.style.display = "flex";
+            scoreText.innerText = `Skor Akhir: ${points} (Babak ${currentLevel})`;
+            const scores = JSON.parse(localStorage.getItem('mathMemoryScores') || '{}');
+            renderGroup(mode === 'all' ? 'plus' : mode, scores[mode] || [], content);
+        }
+
+        function renderGroup(mode, modeScores, container) {
+            let html = `<div class="leaderboard-group-title">${modeNames[mode] || mode}</div><ul class="leaderboard-list">`;
+            if (modeScores.length === 0) html += `<li>Belum ada rekor.</li>`;
+            modeScores.forEach((item, index) => {
+                html += `<li class="leaderboard-item"><span>#${index + 1}</span> <b>${item.score} pts</b></li>`;
+            });
+            container.innerHTML = html + "</ul>";
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').style.display = "none";
+            if (isGameOver) backToMenu();
+        }
+
+        function init() {
+            matched = 0; busy = false; flippedQ = null; flippedA = null;
+            document.getElementById('lives').innerText = lives;
+            document.getElementById('score').innerText = points;
+            document.getElementById('level').innerText = currentLevel;
+            updateMascot('normal');
+            const data = createPairs();
+            const qs = data.map(d => ({id: d.id, val: d.q})).sort(() => Math.random() - 0.5);
+            const as = data.map(d => ({id: d.id, val: d.a})).sort(() => Math.random() - 0.5);
+            const qGrid = document.getElementById('qGrid'), aGrid = document.getElementById('aGrid');
+            qGrid.innerHTML = ''; aGrid.innerHTML = '';
+            qs.forEach(d => {
+                const c = document.createElement('div'); c.className = 'card q-card'; c.dataset.id = d.id;
+                c.innerHTML = `<div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front">${d.val}</div></div>`;
+                c.onclick = () => handleFlip(c, 'q'); qGrid.appendChild(c);
+            });
+            as.forEach(d => {
+                const c = document.createElement('div'); c.className = 'card a-card'; c.dataset.id = d.id;
+                c.innerHTML = `<div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front">${d.val}</div></div>`;
+                c.onclick = () => handleFlip(c, 'a'); aGrid.appendChild(c);
+            });
+        }
+    </script>
+</body>
+</html>
